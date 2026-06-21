@@ -25,7 +25,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	}
 
 	const digest = await runDigest(locals.db, {
-		SEND_EMAIL: env.SEND_EMAIL
+		RESEND_API_KEY: env.RESEND_API_KEY
 	});
 
 	return json({

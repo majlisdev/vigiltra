@@ -31,7 +31,7 @@ declare global {
 			ACCESS_AUD: string;
 			ACCESS_TEAM_DOMAIN: string;
 			CRON_SECRET: string;
-			SEND_EMAIL?: SendEmail;
+			RESEND_API_KEY?: string;
 		}
 	}
 }

@@ -129,7 +129,7 @@
 						required
 					/>
 					<p class="text-muted-foreground text-xs">
-						Must be an address on a domain verified in Cloudflare Email Sending.
+						Must be an address on a domain verified in Resend.
 					</p>
 				</div>
 				<div class="flex flex-col gap-2">

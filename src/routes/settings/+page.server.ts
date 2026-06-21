@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ locals, platform }) => {
 		graph: !!(env?.GRAPH_TENANT_ID && env?.GRAPH_CLIENT_ID && env?.GRAPH_CLIENT_SECRET),
 		access: !!(env?.ACCESS_AUD && env?.ACCESS_TEAM_DOMAIN),
 		cron: !!env?.CRON_SECRET,
-		email: !!env?.SEND_EMAIL
+		email: !!env?.RESEND_API_KEY
 	};
 
 	return {

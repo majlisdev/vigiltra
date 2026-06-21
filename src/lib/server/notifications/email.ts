@@ -1,7 +1,7 @@
 import type { EmailChannelConfig } from '../db/schema';
 
 export type EmailEnv = {
-	SEND_EMAIL?: SendEmail;
+	RESEND_API_KEY?: string;
 };
 
 export async function sendEmailMessage(
@@ -11,17 +11,28 @@ export async function sendEmailMessage(
 	textBody: string,
 	htmlBody: string
 ): Promise<void> {
-	if (!env.SEND_EMAIL) {
+	if (!env.RESEND_API_KEY) {
 		throw new Error(
-			'SEND_EMAIL binding not configured. Add a Cloudflare Email Sending binding to wrangler.jsonc.'
+			'RESEND_API_KEY not configured. Set it with `pnpm wrangler secret put RESEND_API_KEY`.'
 		);
 	}
 
-	await env.SEND_EMAIL.send({
-		from: config.from,
-		to: config.to,
-		subject,
-		text: textBody,
-		html: htmlBody
+	const res = await fetch('https://api.resend.com/emails', {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${env.RESEND_API_KEY}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			from: config.from,
+			to: config.to,
+			subject,
+			text: textBody,
+			html: htmlBody
+		})
 	});
+	if (!res.ok) {
+		const body = await res.text();
+		throw new Error(`Resend send failed (${res.status}): ${body}`);
+	}
 }

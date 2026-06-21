@@ -62,7 +62,7 @@
 		{
 			label: 'Email sending',
 			ok: data.diagnostics.email,
-			hint: 'SEND_EMAIL binding (per-channel from address)'
+			hint: 'RESEND_API_KEY (per-channel from address)'
 		}
 	]);
 </script>

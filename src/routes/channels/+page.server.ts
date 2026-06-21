@@ -123,7 +123,7 @@ export const actions: Actions = {
 				const text = `This is a Vigiltra test message sent at ${timestamp}.\n\nIf you received this, the channel is wired up correctly.`;
 				const html = `<p>This is a <strong>Vigiltra</strong> test message sent at <code>${timestamp}</code>.</p><p>If you received this, the channel is wired up correctly.</p>`;
 				await sendEmailMessage(
-					{ SEND_EMAIL: platform?.env.SEND_EMAIL },
+					{ RESEND_API_KEY: platform?.env.RESEND_API_KEY },
 					channel.config as EmailChannelConfig,
 					'[Vigiltra] Test message',
 					text,

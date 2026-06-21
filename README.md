@@ -19,7 +19,7 @@ Runs as a SvelteKit app on a Cloudflare Worker. No servers to patch, no cron box
 | Framework          | SvelteKit 2 + Svelte 5 (runes) + `@sveltejs/adapter-cloudflare` |
 | Database           | Cloudflare D1 (SQLite) via Drizzle ORM              |
 | Auth               | Cloudflare Access (Entra IdP) — JWT verified per request |
-| Email              | Cloudflare Email Workers (`send_email` binding)      |
+| Email              | Resend (`RESEND_API_KEY` secret)                     |
 | Telegram           | Bot HTTP API                                          |
 | Graph auth         | Client-credentials flow (separate Entra app with `Application.Read.All`) |
 | Cron               | Workers Cron Triggers → `/__cron` endpoint           |
@@ -77,7 +77,6 @@ Copy the returned `database_id` — you'll need it in `wrangler.jsonc`.
       "migrations_dir": "./drizzle"
     }
   ],
-  "send_email": [{ "name": "SEND_EMAIL" }],
   "triggers": {
     // Daily at 09:00 UTC — refresh Graph cache, then send notification digest
     "crons": ["0 9 * * *"]
@@ -123,7 +122,7 @@ Then:
 
 ### 7. Set production secrets
 
-Vigiltra reads six Worker secrets. Each is set with `pnpm wrangler secret put <NAME>`, which prompts for the value and stores it encrypted on Cloudflare. Secrets are never bundled into the Worker script.
+Vigiltra reads seven Worker secrets. Each is set with `pnpm wrangler secret put <NAME>`, which prompts for the value and stores it encrypted on Cloudflare. Secrets are never bundled into the Worker script.
 
 #### `GRAPH_TENANT_ID`
 
@@ -200,13 +199,24 @@ pnpm wrangler secret put CRON_SECRET
 
 You don't need to share this with anything — the scheduled handler in the same Worker reads it from `env.CRON_SECRET` and forwards it as the header.
 
+#### `RESEND_API_KEY`
+
+The API key Vigiltra uses to send notification emails through [Resend](https://resend.com). Without it set, email channels error and the Settings page shows the email diagnostic as unavailable (Telegram channels are unaffected).
+
+**Where to get it:** Resend dashboard → verify a sending domain under **Domains** (add the DKIM/SPF records it shows), then **API Keys** → **Create API Key** (sending permission is enough). Channel `from` addresses must be on a verified domain.
+
+```sh
+pnpm wrangler secret put RESEND_API_KEY
+# paste the key, e.g. re_xxxxxxxxxxxxxxxxxxxxxxxx
+```
+
 #### Verifying the secrets are set
 
 ```sh
 pnpm wrangler secret list
 ```
 
-Should show all six names (values are never displayed).
+Should show all seven names (values are never displayed).
 
 #### Rotating a secret
 
@@ -263,7 +273,7 @@ Any app can override the default template and/or notification channels. Monitori
 
 ### Notification channels
 
-- **Email** — sent via Cloudflare's `send_email` binding. `from` must be a verified destination/sender in your account.
+- **Email** — sent via the [Resend](https://resend.com) API (`RESEND_API_KEY` secret). `from` must be an address on a domain verified in your Resend account.
 - **Telegram** — bot token + chat ID. Test both with the **Send test** button on the Channels page.
 
 ### Superseded credential handling
